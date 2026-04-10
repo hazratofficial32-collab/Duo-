@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duo - Ultimate Master Suite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1; --accent: #a855f7; --bg: #020617;
+            --panel: rgba(15, 23, 42, 0.9); --border: rgba(255, 255, 255, 0.1);
+            --text: #f8fafc; --glass: blur(25px); --msg-partner: rgba(255,255,255,0.05);
+        }
+
+        /* ১৫+ থিম লাইব্রেরি */
+        .theme-forest { --primary: #10b981; --bg: #064e3b; --accent: #34d399; }
+        .theme-pink { --primary: #f472b6; --bg: #500724; --accent: #fb7185; }
+        .theme-ocean { --primary: #0ea5e9; --bg: #0c4a6e; --accent: #38bdf8; }
+        .theme-sunset { --primary: #f59e0b; --bg: #451a03; --accent: #fbbf24; }
+        .theme-blood { --primary: #ef4444; --bg: #450a0a; --accent: #f87171; }
+        .theme-neon { --primary: #ccff00; --bg: #000; --accent: #99ff00; }
+        .theme-royal { --primary: #fbbf24; --bg: #1e1b4b; --accent: #eab308; }
+        .theme-minimal { --primary: #94a3b8; --bg: #1e293b; --accent: #cbd5e1; }
+        .theme-purple { --primary: #a855f7; --bg: #2e1065; --accent: #d8b4fe; }
+        .theme-gold { --primary: #d4af37; --bg: #1a1a1a; --accent: #f1c40f; }
+        .theme-ghost { --primary: #ffffff; --bg: #121212; --accent: #888; }
+        .theme-arctic { --primary: #bae6fd; --bg: #0f172a; --accent: #7dd3fc; }
+        .theme-vintage { --primary: #d97706; --bg: #2d2424; --accent: #b45309; }
+        .theme-nebula { --primary: #ec4899; --bg: #1e1b4b; --accent: #8b5cf6; }
+        .theme-classic { --primary: #2563eb; --bg: #f8fafc; --text: #1e293b; --panel: rgba(0,0,0,0.05); }
+
+        * { box-sizing: border-box; transition: all 0.3s ease; }
+        body, html { margin: 0; padding: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed; inset: 0; background: #000; z-index: 2000;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .logo-text { font-size: 5rem; font-weight: 800; background: linear-gradient(to right, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 20px var(--primary)); cursor: pointer; }
+
+        /* App Layout */
+        .app-container { display: flex; height: 100vh; visibility: hidden; opacity: 0; }
+
+        /* Sidebar - Fixed width but stays behind drawer if needed */
+        .sidebar-icons { width: 70px; background: rgba(0,0,0,0.4); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 20px; z-index: 50; }
+        .nav-btn { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--panel); border: 1px solid var(--border); font-size: 18px; }
+        .nav-btn:hover { background: var(--primary); transform: scale(1.1); }
+
+        /* Settings Drawer - Fixed positioning */
+        .settings-drawer {
+            position: fixed; left: 0; top: 0; bottom: 0; width: 320px;
+            background: var(--panel); backdrop-filter: var(--glass);
+            border-right: 1px solid var(--border); z-index: 150;
+            transform: translateX(-110%); overflow-y: auto; padding: 25px;
+            box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+        }
+        .settings-drawer.active { transform: translateX(0); }
+
+        /* Chat Section */
+        .chat-layout { flex: 1; display: flex; flex-direction: column; position: relative; width: 100%; }
+        .top-bar { padding: 15px 30px; background: rgba(0,0,0,0.2); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+        
+        #chat-feed { flex: 1; padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .msg { max-width: 75%; padding: 12px 18px; border-radius: 18px; font-size: 14px; line-height: 1.5; position: relative; animation: msgPop 0.3s ease; }
+        @keyframes msgPop { from { opacity: 0; transform: translateY(10px); } }
+        
+        .sent { align-self: flex-end; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border-bottom-right-radius: 4px; }
+        .received { align-self: flex-start; background: var(--msg-partner); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+        .typing-indicator { font-style: italic; font-size: 12px; color: var(--primary); margin-bottom: 10px; }
+
+        /* Input Box & Plane Button */
+        .footer-input { padding: 20px; display: flex; justify-content: center; }
+        .input-pill { width: 100%; max-width: 800px; background: var(--panel); border: 1px solid var(--border); border-radius: 30px; padding: 5px 15px; display: flex; align-items: center; gap: 10px; }
+        input[type="text"] { flex: 1; background: transparent; border: none; color: var(--text); padding: 12px; outline: none; }
+        
+        .send-btn { 
+            background: var(--primary); border: none; color: white; width: 42px; height: 42px; 
+            border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: 0.3s;
+        }
+        .send-btn:hover { transform: rotate(-15deg) scale(1.1); background: var(--accent); }
+
+        .option-box h3 { font-size: 13px; text-transform: uppercase; color: var(--primary); margin: 20px 0 10px; }
+        .opt-item { padding: 10px; background: rgba(255,255,255,0.03); border-radius: 8px; font-size: 12px; cursor: pointer; margin-bottom: 5px; }
+        .opt-item:hover { background: var(--primary); color: white; }
+    </style>
+</head>
+<body class="theme-midnight">
+
+    <div id="splash-screen">
+        <div onclick="launchApp()" class="logo-text">DUO</div>
+        <p style="color: grey; letter-spacing: 3px; font-size: 12px;">CLICK TO START</p>
+    </div>
+
+    <div class="app-container" id="app-body">
+        <nav class="sidebar-icons">
+            <div class="nav-btn" onclick="toggleSettings()">⚙️</div>
+            <div class="nav-btn">📂</div>
+            <div class="nav-btn" onclick="location.reload()">🔒</div>
+        </nav>
+
+        <aside class="settings-drawer" id="drawer">
+            <h2 style="margin-top:0">Settings</h2>
+            <div class="option-box">
+                <h3>Themes</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                    <div class="opt-item" onclick="setTheme('theme-forest')">🌲 Forest</div>
+                    <div class="opt-item" onclick="setTheme('theme-ocean')">🌊 Ocean</div>
+                    <div class="opt-item" onclick="setTheme('theme-neon')">🧪 Neon</div>
+                    <div class="opt-item" onclick="setTheme('theme-blood')">🩸 Blood</div>
+                    <div class="opt-item" onclick="setTheme('theme-minimal')">☁️ Minimal</div>
+                    <div class="opt-item" onclick="setTheme('theme-classic')">👔 Classic</div>
+                </div>
+            </div>
+            <div class="option-box">
+                <h3>Advanced Tools</h3>
+                <div id="dynamic-options"></div>
+            </div>
+            <button onclick="toggleSettings()" style="width:100%; margin-top:20px; padding:10px; background:var(--primary); border:none; color:white; border-radius:5px; cursor:pointer;">Close</button>
+        </aside>
+
+        <main class="chat-layout">
+            <header class="top-bar">
+                <div>
+                    <h4 style="margin: 0;">Duo Private Channel</h4>
+                    <small id="status" style="color: #10b981;">● Online</small>
+                </div>
+                <div style="cursor: pointer; font-size: 22px;" onclick="toggleSettings()">⋮</div>
+            </header>
+
+            <div id="chat-feed">
+                <div class="msg received">হ্যালো! আমি আপনাকে কিভাবে সাহায্য করতে পারি?</div>
+            </div>
+
+            <footer class="footer-input">
+                <div class="input-pill">
+                    <input type="file" id="fileInput" style="display:none" onchange="handleFile(event)">
+                    <span onclick="document.getElementById('fileInput').click()" style="cursor:pointer; opacity:0.6">📎</span>
+                    <input type="text" id="mainInput" placeholder="এখানে লিখুন..." onkeypress="if(event.key==='Enter') pushMessage()">
+                    
+                    <button class="send-btn" onclick="pushMessage()">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        // লঞ্চ অ্যাপ
+        function launchApp() {
+            document.getElementById('splash-screen').style.display = 'none';
+            document.getElementById('app-body').style.visibility = 'visible';
+            document.getElementById('app-body').style.opacity = '1';
+        }
+
+        // ড্রয়ার কন্ট্রোল
+        function toggleSettings() {
+            document.getElementById('drawer').classList.toggle('active');
+        }
+
+        // থিম সেট করা
+        function setTheme(t) {
+            document.body.className = t;
+            localStorage.setItem('duo-theme', t);
+        }
+
+        // ফাইল হ্যান্ডলিং (ইমেজ প্রিভিউ)
+        function handleFile(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const feed = document.getElementById('chat-feed');
+                    const msg = document.createElement('div');
+                    msg.className = 'msg sent';
+                    msg.innerHTML = `<img src="${event.target.result}" style="max-width:200px; border-radius:10px; display:block;">`;
+                    feed.appendChild(msg);
+                    feed.scrollTop = feed.scrollHeight;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // মেসেজ পাঠানো
+        function pushMessage() {
+            const inp = document.getElementById('mainInput');
+            const feed = document.getElementById('chat-feed');
+            const text = inp.value.trim();
+            if(!text) return;
+
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            // ইউজার মেসেজ
+            const msg = document.createElement('div');
+            msg.className = 'msg sent';
+            msg.innerHTML = `${text} <small style="display:block; font-size:9px; opacity:0.6; text-align:right;">${time}</small>`;
+            feed.appendChild(msg);
+            inp.value = '';
+            feed.scrollTop = feed.scrollHeight;
+
+            // টাইপিং ইন্ডিকেটর ও অটো রিপ্লাই
+            showTyping(feed, time);
+        }
+
+        function showTyping(feed, time) {
+            const typing = document.createElement('div');
+            typing.className = 'typing-indicator';
+            typing.innerText = "Duo is typing...";
+            feed.appendChild(typing);
+            feed.scrollTop = feed.scrollHeight;
+
+            setTimeout(() => {
+                feed.removeChild(typing);
+                const reply = document.createElement('div');
+                reply.className = 'msg received';
+                reply.innerHTML = `আপনার তথ্যটি সুরক্ষিতভাবে জমা হয়েছে। <small style="display:block; font-size:9px; opacity:0.5;">${time}</small>`;
+                feed.appendChild(reply);
+                feed.scrollTop = feed.scrollHeight;
+            }, 1500);
+        }
+
+        // অ্যাডভান্সড সেটিংস জেনারেটর
+        const tools = ['Privacy Shield', 'Ghost Mode', 'Auto Wipe', 'Encryption Keys', 'Secure Proxy', 'Log Manager'];
+        const container = document.getElementById('dynamic-options');
+        tools.forEach(t => {
+            const div = document.createElement('div');
+            div.className = 'opt-item';
+            div.innerText = '⚙️ ' + t;
+            div.onclick = () => alert(t + " enabled!");
+            container.appendChild(div);
+        });
+
+        // পেজ লোড হলে থিম চেক
+        window.onload = () => {
+            const saved = localStorage.getItem('duo-theme');
+            if(saved) document.body.className = saved;
+        };
+    </script>
+   <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-analytics.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyBBTqu-wXHKhgeto778H1brX7Sz8l7MZrE",
+    authDomain: "private-chat-5e5c4.firebaseapp.com",
+    projectId: "private-chat-5e5c4",
+    storageBucket: "private-chat-5e5c4.firebasestorage.app",
+    messagingSenderId: "1021393770840",
+    appId: "1:1021393770840:web:0a88990fbecfe8c03e6d2d",
+    measurementId: "G-JQ39BWETFR"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+  script type="module">
+        // প্রয়োজনীয় লাইব্রেরি ইমপোর্ট করা
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+// Firebase ইনিশিয়ালাইজ করা
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const messagesRef = ref(db, "messages");
+
+        const messageInput = document.getElementById("messageInput");
+        const sendBtn = document.getElementById("sendBtn");
+        const chatBox = document.getElementById("chat-box");
+
+        // মেসেজ পাঠানোর ফাংশন
+        sendBtn.onclick = () => {
+            const msg = messageInput.value;
+            if (msg.trim() !== "") {
+                push(messagesRef, {
+                    text: msg,
+                    timestamp: Date.now()
+                });
+                messageInput.value = ""; // পাঠানোর পর ইনপুট খালি করা
+            }
+        };
+
+        // ডাটাবেস থেকে রিয়েল-টাইমে মেসেজ রিসিভ করা
+        onChildAdded(messagesRef, (snapshot) => {
+            const data = snapshot.val();
+            const messageElement = document.createElement("div");
+            messageElement.classList.add("message");
+            messageElement.innerText = data.text;
+            chatBox.appendChild(messageElement);
+            
+            // স্ক্রল অটোমেটিক নিচে রাখা
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+
+        // Enter চাপলে মেসেজ পাঠানো
+        messageInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") sendBtn.click();
+        });
+</script>
+</body>
+</html>
